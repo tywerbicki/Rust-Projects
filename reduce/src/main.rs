@@ -1,9 +1,10 @@
-use reduce;
+use std::vec::Vec;
 
+use reduce;
 
 fn main() {
 
-    let my_vec = vec![1; 100];
+    let my_vec = Vec::from_iter(1..1);
 
     let sum = reduce::parallel_foldl(
         &my_vec,
