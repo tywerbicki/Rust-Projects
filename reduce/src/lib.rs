@@ -31,21 +31,24 @@ where
 
         for thread_id in 0..parallelism.get() {
 
-            // Calculate base index for thread-local fold.
-            let base_index =
-                thread_id * (min_elem_per_thread + 1) -
-                thread_id.saturating_sub(remainder);
-            // Calculate the bounding index for thread-local fold.
-            let bounding_index =
-                base_index + min_elem_per_thread +
-                ((thread_id < remainder) as usize);
             // Clone sender so that it can be moved into closure.
             let tx = tx.clone();
 
             scope.spawn(move || {
+
+                // Calculate base index for thread-local fold.
+                let base_index =
+                    thread_id * (min_elem_per_thread + 1) -
+                    thread_id.saturating_sub(remainder);
+                // Calculate the bounding index for thread-local fold.
+                let bounding_index =
+                    base_index + min_elem_per_thread +
+                    ((thread_id < remainder) as usize);
+
                 tx.send(
                     s[base_index..bounding_index]
-                        .iter().fold(init, f)
+                        .iter()
+                        .fold(init, f)
                 )
                 .expect("Receiver has been dropped.");
             });
