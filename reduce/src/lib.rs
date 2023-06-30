@@ -6,6 +6,36 @@ use std::thread;
 const DEFAULT_PARALLELISM: NonZeroUsize =
     unsafe{ NonZeroUsize::new_unchecked(16) };
 
+/// Performs a parallel foldl over `s`.
+/// 
+/// Each thread performs a thread-local foldl over a portion of `s`
+/// using folding function `f`. The results of the thread-local foldls
+/// are then aggregated using reducing function `r`.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use reduce;
+/// use std::vec::Vec;
+/// 
+/// let x = Vec::from_iter(0..100);
+/// let a = 2;
+/// let b = 8;
+/// 
+/// let ser_sum_ax_b: u32 =
+///     x.iter().map(|x| (a*x) + b).sum();
+/// 
+/// let par_sum_ax_b = reduce::parallel_foldl(
+///     &x,
+///     0,
+///     |f, g| f + (a*g) + b,
+///     |f, g| f + g
+/// );
+/// 
+/// assert_eq!(ser_sum_ax_b, par_sum_ax_b);
+/// 
+/// ```
+/// 
 pub fn parallel_foldl<T, U, F, R>(
     s: &[T],
     init: U,
